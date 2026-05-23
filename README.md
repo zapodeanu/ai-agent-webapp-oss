@@ -227,7 +227,7 @@ BACKEND_PORT=3101 HTTPS_PROXY_PORT=3443 bash scripts/start_with_nginx.sh
 
 ```bash
 AWS_REGION=us-east-1
-BEDROCK_MODEL_ID=anthropic.claude-3-haiku-20240307-v1:0
+BEDROCK_MODEL_ID=anthropic.claude-sonnet-4-20250514-v1:0
 ```
 
 2) Configure AWS credentials on the host (example):
