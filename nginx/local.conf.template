@@ -1,0 +1,46 @@
+worker_processes  1;
+
+events {
+  worker_connections  1024;
+}
+
+http {
+  include       __NGINX_MIME_TYPES__;
+  default_type  application/octet-stream;
+  sendfile      on;
+  keepalive_timeout  65;
+  map $request_uri $mcp_loggable {
+    default 1;
+    ~^/$ 0;
+    ~^/health$ 0;
+    ~^/static/ 0;
+    ~^/favicon 0;
+  }
+  log_format mcp_server '$time_iso8601 - PID:$pid - nginx_access - INFO - $remote_addr "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"';
+
+  access_log __APP_LOG_FILE__ mcp_server if=$mcp_loggable;
+  error_log  __APP_LOG_FILE__ error;
+
+  server {
+    listen __HTTPS_PROXY_PORT__ ssl;
+    server_name localhost;
+
+    ssl_certificate     __CERT_CRT__;
+    ssl_certificate_key __CERT_KEY__;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    location / {
+      proxy_pass http://127.0.0.1:__BACKEND_PORT__;
+      proxy_http_version 1.1;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto https;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_buffering off;
+    }
+  }
+}

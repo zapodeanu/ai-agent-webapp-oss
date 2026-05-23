@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Network AI Hub</title>
+    <style>
+      :root {
+        --user-blue: #93c5fd;
+        --user-blue-dark: #ffffff;
+        --ui-border-width: 1.5px;
+        --status-border-width: 1.5px;
+      }
+      body {
+        margin: 0;
+        font-family: "CiscoSans", "Cisco Sans", Arial, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h2 {
+        margin-top: 0;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+      .status-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+      }
+      .chat-tools {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      select {
+        background: #1e293b;
+        color: #e2e8f0;
+        border: var(--ui-border-width) solid var(--user-blue-dark);
+        border-radius: 8px;
+        padding: 8px;
+      }
+      .badges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .status-stack .badges {
+        justify-content: flex-end;
+      }
+      #mcpServerBadges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .badge {
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: var(--status-border-width) solid var(--user-blue-dark);
+        background: #1e293b;
+        color: #e2e8f0;
+      }
+      .server-badges-row {
+        margin-bottom: 0;
+      }
+      .badge.ok {
+        color: #86efac;
+        border-color: #14532d;
+      }
+      .badge.off {
+        color: #fca5a5;
+        border-color: #7f1d1d;
+      }
+      .chat {
+        min-height: 430px;
+        max-height: 65vh;
+        overflow-y: auto;
+        border: var(--ui-border-width) solid var(--user-blue-dark);
+        border-radius: 10px;
+        padding: 12px;
+        background: #111827;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 12px;
+      }
+      .sidebar {
+        border: var(--ui-border-width) solid var(--user-blue-dark);
+        border-radius: 10px;
+        background: #111827;
+        padding: 10px;
+        max-height: 72vh;
+        overflow-y: auto;
+      }
+      .sidebar h3 {
+        margin: 0 0 10px;
+        font-size: 15px;
+        color: #cbd5e1;
+      }
+      .chat-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .chat-item {
+        text-align: left;
+        padding: 8px 10px;
+        border: var(--ui-border-width) solid var(--user-blue-dark);
+        border-radius: 8px;
+        background: #1f2937;
+        color: #f3f4f6;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .chat-item.active {
+        border-color: var(--user-blue-dark);
+        background: #000000;
+        color: #ffffff;
+      }
+      .chat-main {
+        min-width: 0;
+      }
+      .msg {
+        margin: 0 0 12px;
+      }
+      .msg-label {
+        font-weight: 600;
+        margin-right: 6px;
+      }
+      .msg-content {
+        white-space: pre-wrap;
+      }
+      .msg-content pre {
+        white-space: pre-wrap;
+        overflow-x: auto;
+        background: #0b1220;
+        border: var(--ui-border-width) solid var(--user-blue-dark);
+        border-radius: 8px;
+        padding: 8px;
+        margin: 8px 0;
+      }
+      .user {
+        color: var(--user-blue);
+      }
+      .assistant {
+        color: #a7f3d0;
+      }
+      form {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      #message {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        border: var(--ui-border-width) solid var(--user-blue-dark);
+        background: #1e293b;
+        color: var(--user-blue);
+        line-height: 1.4;
+        min-height: 42px;
+        max-height: 180px;
+        resize: none;
+        overflow-y: hidden;
+        font: inherit;
+      }
+      #message::placeholder {
+        color: #94a3b8;
+      }
+      button {
+        border: var(--ui-border-width) solid var(--user-blue-dark);
+        border-radius: 8px;
+        background: #000000;
+        color: #ffffff;
+        padding: 10px 16px;
+        cursor: pointer;
+      }
+      .secondary {
+        background: #000000;
+      }
+      .hint {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #94a3b8;
+      }
+      code {
+        background: #1e293b;
+        padding: 2px 4px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="topbar">
+        <h2>Network AI Hub</h2>
+        <div class="status-stack">
+          <div class="badges">
+            <span id="userBadge" class="badge">user: unknown</span>
+            <span id="agentBadge" class="badge">agent: unknown</span>
+            <span id="mcpBadge" class="badge">mcp: unknown</span>
+          </div>
+          <div class="server-badges-row">
+            <div id="mcpServerBadges" class="badges"></div>
+          </div>
+        </div>
+      </div>
+      <div class="layout">
+        <aside class="sidebar">
+          <h3>Chats</h3>
+          <div id="chatList" class="chat-list"></div>
+        </aside>
+        <section class="chat-main">
+          <div class="chat-tools">
+            <button id="newChatBtn" type="button" class="secondary">New chat</button>
+            <button id="renameChatBtn" type="button" class="secondary">Rename chat</button>
+            <button id="deleteChatBtn" type="button" class="secondary">Delete chat</button>
+          </div>
+          <div id="chat" class="chat"></div>
+          <form id="chatForm">
+            <textarea
+              id="message"
+              rows="1"
+              placeholder="Type your message..."
+              autocomplete="off"
+            ></textarea>
+            <button id="sendBtn" type="submit">Send</button>
+            <button id="clearBtn" type="button" class="secondary">Clear</button>
+          </form>
+          <div class="hint">Tool test format: <code>/tool tool_name {"arg":"value"}</code></div>
+        </section>
+      </div>
+    </div>
+    <script src="/static/app.js?v=20260324-2"></script>
+  </body>
+</html>
